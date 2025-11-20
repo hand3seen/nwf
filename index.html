@@ -410,3 +410,82 @@
       fullWord.classList.remove("real");
       if (letter && realWords.has(letter + rime)) {
         fullWord.classList.add("real");
+      }
+
+      // If user clicks in this card, sync to big builder
+      if (letter) {
+        currentRime = rime;
+        currentFirstLetter = letter;
+        updateBigBuilder();
+      }
+    });
+
+    builderRow.appendChild(input);
+    builderRow.appendChild(fullWord);
+
+    card.appendChild(label);
+    card.appendChild(rimeEl);
+    card.appendChild(builderRow);
+
+    // Click rime itself to load into big builder
+    card.addEventListener("click", (e) => {
+      // avoid double-handling when typing
+      if (e.target === input) return;
+      currentRime = rime;
+      currentFirstLetter = input.value.toLowerCase();
+      updateBigBuilder();
+    });
+
+    return card;
+  }
+
+  function renderEndings() {
+    rimes.forEach(r => {
+      endingsGrid.appendChild(makeEndingCard(r));
+    });
+  }
+
+  function updateBigBuilder() {
+    currentRimeEl.textContent = "-" + currentRime;
+    const first = currentFirstLetter || "_";
+    const word = first + currentRime;
+    bigWordEl.textContent = word.toUpperCase();
+    if (currentFirstLetter && realWords.has(currentFirstLetter + currentRime)) {
+      bigWordRealTag.style.display = "inline-block";
+    } else {
+      bigWordRealTag.style.display = "none";
+    }
+  }
+
+  function pickRandomRime() {
+    const idx = Math.floor(Math.random() * rimes.length);
+    currentRime = rimes[idx];
+    currentFirstLetter = "";
+    updateBigBuilder();
+  }
+
+  function buildKeyboard() {
+    const letters = "bcdfghjklmnpqrstvwxz".split("");
+    letters.forEach(letter => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "key";
+      btn.textContent = letter;
+      btn.addEventListener("click", () => {
+        currentFirstLetter = letter;
+        updateBigBuilder();
+      });
+      keyboardEl.appendChild(btn);
+    });
+  }
+
+  randomRimeBtn.addEventListener("click", pickRandomRime);
+
+  // Init
+  renderEndings();
+  buildKeyboard();
+  updateBigBuilder();
+</script>
+</body>
+</html>
+
