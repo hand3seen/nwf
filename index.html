@@ -345,7 +345,7 @@
 </div>
 
 <script>
-  // Original nonsense words
+  // Original nonsense words (only used to define consonant endings)
   const nonsenseWords = [
     "bab","baf","baj","bak","bav","cag","caj","cak","cav","caz",
     "daj","dak","daf","daz","dav","faf","faj","fak","faz","fal",
@@ -353,16 +353,31 @@
     "jad","jaf"
   ];
 
-  // Strip the first letter to get the rime (ending)
-  const rimes = Array.from(new Set(nonsenseWords.map(w => w.slice(1)))).sort();
+  // Base rimes from your list (like "ab", "af", "aj", ...)
+  const baseRimes = Array.from(new Set(nonsenseWords.map(w => w.slice(1))));
 
-  // Tiny real-word list for a bit of feedback (not exhaustive)
+  // Short vowels: a, e, i, o, u
+  const vowels = ["a", "e", "i", "o", "u"];
+
+  // Expand to all vowel + final consonant combos: ab, eb, ib, ob, ub, etc.
+  const rimes = Array.from(new Set(
+    baseRimes.flatMap(r => vowels.map(v => v + r[1]))
+  )).sort();
+
+  // Real-word list (for the green "Real word" tag)
   const realWords = new Set([
+    // a-words
     "cab","dab","jab","lab","tab",
+    "bad","dad","had","mad","sad",
     "bag","tag","rag","wag",
-    "dad","had","fad","bad","mad","sad",
-    "hat","cat","bat","mat","sat",
-    "gas","has"
+    // e-words
+    "bed","red","led","fed","web","beg","leg","peg",
+    // i-words
+    "rib","bib","pig","fig","dig","big","kid","lid","six","fix","mix",
+    // o-words
+    "bob","dog","log","fog","rod","pod","box","fox","job",
+    // u-words
+    "rub","cub","sub","tub","hug","mug","bug","rug","bud","mud"
   ]);
 
   const endingsGrid = document.getElementById("endingsGrid");
@@ -412,7 +427,7 @@
         fullWord.classList.add("real");
       }
 
-      // If user clicks in this card, sync to big builder
+      // If user types in this card, sync to big builder
       if (letter) {
         currentRime = rime;
         currentFirstLetter = letter;
@@ -427,9 +442,8 @@
     card.appendChild(rimeEl);
     card.appendChild(builderRow);
 
-    // Click rime itself to load into big builder
+    // Click card (but not the input) to load into big builder
     card.addEventListener("click", (e) => {
-      // avoid double-handling when typing
       if (e.target === input) return;
       currentRime = rime;
       currentFirstLetter = input.value.toLowerCase();
@@ -465,6 +479,7 @@
   }
 
   function buildKeyboard() {
+    // Consonant keyboard
     const letters = "bcdfghjklmnpqrstvwxz".split("");
     letters.forEach(letter => {
       const btn = document.createElement("button");
